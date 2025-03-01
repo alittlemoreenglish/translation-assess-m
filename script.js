@@ -203,25 +203,53 @@ const questionBanks = {
     ]
 };
 
+// 用來追蹤每個題庫已經使用過的句子索引
+const usedIndexes = {
+    'proverbs': new Set(),
+    'daily': new Set(),
+    'business': new Set(),
+    'highschooltest': new Set()
+};
+
 let currentBank = 'proverbs';
-let sentences = questionBanks[currentBank];
-let currentSentenceIndex = 0;
+let currentSentence = '';
 
 function initialize() {
-    displayNewSentence();
+    // 載入並顯示第一個隨機句子
+    getNextRandomSentence();
 }
 
-function displayNewSentence() {
-    document.getElementById('chineseText').textContent = sentences[currentSentenceIndex];
+// 獲取下一個隨機句子
+function getNextRandomSentence() {
+    const bank = questionBanks[currentBank];
+    const totalSentences = bank.length;
+    
+    // 如果所有句子都已使用過，則重置使用記錄
+    if (usedIndexes[currentBank].size >= totalSentences) {
+        usedIndexes[currentBank].clear();
+    }
+    
+    // 隨機選擇一個未使用過的索引
+    let randomIndex;
+    do {
+        randomIndex = Math.floor(Math.random() * totalSentences);
+    } while (usedIndexes[currentBank].has(randomIndex));
+    
+    // 標記此索引為已使用
+    usedIndexes[currentBank].add(randomIndex);
+    
+    // 設置當前句子
+    currentSentence = bank[randomIndex];
+    
+    // 顯示新句子
+    document.getElementById('chineseText').textContent = currentSentence;
     document.getElementById('translationInput').value = '';
     document.getElementById('result').style.display = 'none';
 }
 
 function changeQuestionBank(bank) {
     currentBank = bank;
-    sentences = questionBanks[bank];
-    currentSentenceIndex = 0;
-    displayNewSentence();
+    getNextRandomSentence();
     closeSettings();
 }
 
@@ -233,7 +261,7 @@ function closeSettings() {
     document.getElementById('settingsModal').style.display = 'none';
 }
 
-// When user clicks outside the modal, close it
+// 當用戶點擊模態框外部時關閉它
 window.onclick = function(event) {
     const modal = document.getElementById('settingsModal');
     if (event.target == modal) {
@@ -242,7 +270,7 @@ window.onclick = function(event) {
 }
 
 async function evaluateTranslation() {
-    const chineseSentence = sentences[currentSentenceIndex];
+    const chineseSentence = currentSentence;
     const userTranslation = document.getElementById('translationInput').value.trim();
     
     if (!userTranslation) {
@@ -287,9 +315,8 @@ async function evaluateTranslation() {
 }
 
 function nextSentence() {
-    currentSentenceIndex = (currentSentenceIndex + 1) % sentences.length;
-    displayNewSentence();
+    getNextRandomSentence();
 }
 
-// Initialize when page loads
+// 當頁面載入時初始化
 window.onload = initialize;
