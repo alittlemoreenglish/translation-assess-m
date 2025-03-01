@@ -234,6 +234,14 @@ function initialize() {
     getNextRandomSentence();
 }
 
+function nextSentence() {
+    // 清除評分結果
+    document.getElementById('result').style.display = 'none';
+    
+    // 獲取下一句隨機句子
+    getNextRandomSentence();
+}
+
 function getNextRandomSentence() {
     const bank = questionBanks[currentBank];
     const totalSentences = bank.length;
