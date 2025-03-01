@@ -1,0 +1,154 @@
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>中英單句翻譯評量系統 | Chinese-English Translation Assessment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chinese-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 100px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .score {
+            font-size: 24px;
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+        .feedback {
+            color: #666;
+            line-height: 1.6;
+        }
+        .next-btn {
+            background-color: #2196F3;
+            margin-top: 20px;
+        }
+        .settings-btn {
+            background-color: #607D8B;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+
+        .bank-option {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .bank-option:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>中英單句翻譯評量系統</h1>
+        <h2>Chinese-English Translation Assessment</h2>
+        
+        <button class="settings-btn" onclick="openSettings()">題庫設定</button>
+        
+        <div class="chinese-text" id="chineseText"></div>
+        
+        <div class="input-section">
+            <label for="translationInput">Your English Translation:</label>
+            <textarea id="translationInput" placeholder="Enter your translation here..."></textarea>
+            <button onclick="evaluateTranslation()">評分</button>
+        </div>
+        
+        <div class="result" id="result" style="display: none;">
+            <div class="score">分數: <span id="scoreValue"></span>/10</div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <button class="next-btn" onclick="nextSentence()">下一句</button>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h2>選擇題庫</h2>
+            <div class="bank-option" onclick="changeQuestionBank('proverbs')">
+                諺語與格言
+            </div>
+            <div class="bank-option" onclick="changeQuestionBank('daily')">
+                日常對話
+            </div>
+            <div class="bank-option" onclick="changeQuestionBank('business')">
+                商業用語
+            </div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
+        Author: Aaron Shi. Released in March 2025.
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
