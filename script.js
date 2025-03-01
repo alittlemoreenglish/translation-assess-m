@@ -214,12 +214,26 @@ const usedIndexes = {
 let currentBank = 'proverbs';
 let currentSentence = '';
 
+const API_KEY = '0repy9inIYayTFD1iGjS5VaaV3pcWJUL';
+const API_URL = 'https://api.mistral.ai/v1/chat/completions';
+
+// 當頁面載入時初始化
+window.onload = function() {
+    // 確保有設定預設題庫
+    currentBank = currentBank || 'proverbs';
+    
+    // 立即調用初始化函數
+    initialize();
+    
+    // 顯示第一句隨機句子
+    getNextRandomSentence();
+};
+
 function initialize() {
     // 載入並顯示第一個隨機句子
     getNextRandomSentence();
 }
 
-// 獲取下一個隨機句子
 function getNextRandomSentence() {
     const bank = questionBanks[currentBank];
     const totalSentences = bank.length;
@@ -241,10 +255,24 @@ function getNextRandomSentence() {
     // 設置當前句子
     currentSentence = bank[randomIndex];
     
-    // 顯示新句子
-    document.getElementById('chineseText').textContent = currentSentence;
-    document.getElementById('translationInput').value = '';
-    document.getElementById('result').style.display = 'none';
+    // 確保DOM元素已經存在
+    const chineseTextElement = document.getElementById('chineseText');
+    const translationInputElement = document.getElementById('translationInput');
+    const resultElement = document.getElementById('result');
+    
+    if (chineseTextElement) {
+        chineseTextElement.textContent = currentSentence;
+    } else {
+        console.error('Cannot find element with id "chineseText"');
+    }
+    
+    if (translationInputElement) {
+        translationInputElement.value = '';
+    }
+    
+    if (resultElement) {
+        resultElement.style.display = 'none';
+    }
 }
 
 function changeQuestionBank(bank) {
@@ -278,45 +306,71 @@ async function evaluateTranslation() {
         return;
     }
 
-    const messages = [
-        {
-            role: "system",
-            content: `You are a professional Chinese-English translation evaluator. 
-            Evaluate the translation based on accuracy and naturalness.
-            Respond in JSON format with:
-            {
-                "score": number between 1-10,
-                "feedback": detailed feedback in Traditional Chinese (Taiwan) about strengths and areas for improvement
-            }`
-        },
-        {
-            role: "user",
-            content: `Original Chinese: ${chineseSentence}
-            User's English translation: ${userTranslation}
-            Please evaluate this translation.`
-        }
-    ];
+    // 顯示加載指示器或禁用按鈕
+    const evaluateButton = document.querySelector('button');
+    evaluateButton.disabled = true;
+    evaluateButton.textContent = '評分中...';
 
     try {
-        const completion = await websim.chat.completions.create({
-            messages: messages,
-            json: true
+        // 準備請求主體 (Mistral API格式)
+        const requestBody = {
+            model: "mistral-large-latest", // 或使用您想要的Mistral模型
+            messages: [
+                {
+                    role: "user",
+                    content: `你是一位專業的中英翻譯評估專家。請評估以下翻譯的準確性和自然度。
+                    原始中文: ${chineseSentence}
+                    用戶的英文翻譯: ${userTranslation}
+                    請以JSON格式回覆，格式如下：
+                    {
+                        "score": 1到10之間的數字,
+                        "feedback": 用繁體中文（台灣）詳細說明優點和需要改進的地方
+                    }`
+                }
+            ],
+            temperature: 0.2,
+            top_p: 0.95,
+            max_tokens: 1024
+        };
+
+        // 發送請求到Mistral API
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify(requestBody)
         });
 
-        const result = JSON.parse(completion.content);
+        const data = await response.json();
         
+        // 檢查API回應是否成功
+        if (!response.ok) {
+            throw new Error(data.error?.message || 'API請求失敗');
+        }
+
+        // 從回應中提取JSON內容 (Mistral API回應格式)
+        const textContent = data.choices[0].message.content;
+        
+        // 提取JSON字符串
+        const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('無法從回應中提取JSON');
+        }
+        
+        const result = JSON.parse(jsonMatch[0]);
+        
+        // 顯示結果
         document.getElementById('scoreValue').textContent = result.score;
         document.getElementById('feedback').textContent = result.feedback;
         document.getElementById('result').style.display = 'block';
     } catch (error) {
-        console.error('Error during evaluation:', error);
-        alert('An error occurred during evaluation. Please try again.');
+        console.error('評估過程中出現錯誤:', error);
+        alert('評估過程中出現錯誤，請重試。' + error.message);
+    } finally {
+        // 恢復按鈕狀態
+        evaluateButton.disabled = false;
+        evaluateButton.textContent = '評分';
     }
 }
-
-function nextSentence() {
-    getNextRandomSentence();
-}
-
-// 當頁面載入時初始化
-window.onload = initialize;
