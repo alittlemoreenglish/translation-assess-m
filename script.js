@@ -314,10 +314,11 @@ async function evaluateTranslation() {
         return;
     }
 
-    // 顯示加載指示器或禁用按鈕
+    // 顯示加載指示器並禁用按鈕
     const evaluateButton = document.querySelector('button');
+    const loadingIndicator = document.getElementById('loadingIndicator');
     evaluateButton.disabled = true;
-    evaluateButton.textContent = '評分中...';
+    loadingIndicator.style.display = 'block';
 
     try {
         // 準備請求主體 (Mistral API格式)
@@ -377,8 +378,8 @@ async function evaluateTranslation() {
         console.error('評估過程中出現錯誤:', error);
         alert('評估過程中出現錯誤，請重試。' + error.message);
     } finally {
-        // 恢復按鈕狀態
+        // 恢復按鈕狀態和隱藏加載指示器
         evaluateButton.disabled = false;
-        evaluateButton.textContent = '評分';
+        loadingIndicator.style.display = 'none';
     }
 }

@@ -31,6 +31,8 @@
             border-radius: 4px;
             min-height: 100px;
             margin-bottom: 10px;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 16px;
         }
         button {
             background-color: #4CAF50;
@@ -104,6 +106,13 @@
         .bank-option:hover {
             background-color: #f0f0f0;
         }
+
+.loading-indicator {
+    text-align: center;
+    margin-top: 10px;
+    color: #4CAF50;
+    font-weight: bold;
+}
     </style>
 </head>
 <body>
@@ -115,11 +124,12 @@
         
         <div class="chinese-text" id="chineseText"></div>
         
-        <div class="input-section">
-            <label for="translationInput">Your English Translation:</label>
-            <textarea id="translationInput" placeholder="Enter your translation here..."></textarea>
-            <button onclick="evaluateTranslation()">評分</button>
-        </div>
+<div class="input-section">
+    <label for="translationInput">Your English Translation:</label>
+    <textarea id="translationInput" placeholder="Enter your translation here..."></textarea>
+    <button onclick="evaluateTranslation()">評分</button>
+    <div id="loadingIndicator" class="loading-indicator" style="display: none;">評分中...</div>
+</div>
         
         <div class="result" id="result" style="display: none;">
             <div class="score">分數: <span id="scoreValue"></span>/10</div>
